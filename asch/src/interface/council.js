@@ -44,11 +44,21 @@ module.exports = (router) => {
     return { payment }
   })
 
-  // 测试 get
+  //
   router.get('/getcouncil', async (req) => {
-    //const count = app.sdb.count('CouncilMember')
+    let council = [];
+    const condition = {}
+    condition.status = 1
+    const count = await app.sdb.count('CouncilMember', condition);
     let members = await app.sdb.findAll('CouncilMember', { condition: { status: 1 } }) || [];
-    return members
+
+    if (members) {
+      for (let i = 0; i < members.length; i++) {
+        if (members[i].votes / count >= (2 / 3))
+          council.push(members[i])
+      }
+    }
+    return council
   })
 
   // 获取投票列表
@@ -59,14 +69,15 @@ module.exports = (router) => {
     let Council = await app.sdb.findAll('CouncilVote', { condition: { sign: 1 } }) || [];
     if (Council) {
       for (let i = 0; i < Council.length; i++) {
-        const type = "增加成员";
+        let type = "增加成员";
         if (Council[i].type == 1) type = "删除成员";
         var count = Council[i].voter.split(',');
         votelist.push({
           name: Council[i].targets,
           type: type,
           votes: count.length,
-          amount: 0
+          amount: 0,
+          tid: ""
         })
       }
     }
@@ -74,17 +85,16 @@ module.exports = (router) => {
     let trans = await app.sdb.findAll('CouncilTransaction', { condition: { pending: 1 } }) || [];
     if (trans) {
       for (let j = 0; j < trans.length; j++) {
-        const type = "转账";
+        let type = "转账";
         votelist.push({
-          name: trans[i].tid,
+          name: trans[j].recipient,//收款人
           type: type,
-          votes: trans[i].sign,
-          amount: trans[i].amount
+          votes: trans[j].signs,
+          amount: trans[j].amount,
+          tid: trans[j].tid
         })
       }
     }
     return votelist
   })
-
-
 }
