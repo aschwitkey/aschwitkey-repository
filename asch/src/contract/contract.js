@@ -42,7 +42,7 @@ async function makeContext(senderAddress, transaction, account, block) {
 }
 
 async function gasToEnergy(gas) {
-  const result = await pledge.getEnergyByGas(gas)
+  const result = await pledge.getEnergyByGas(gas) 
   if (result === null) {
     throw `Cannot calculate energy amount for gas ${gas}`
   }
@@ -50,7 +50,7 @@ async function gasToEnergy(gas) {
 }
 
 async function gasToXAS(gas) {
-  const result = await pledge.getXASByGas(gas)
+  const result = await pledge.getXASByGas(gas) 
   if (result === null) {
     throw `Cannot calculate XAS amount for gas ${gas}`
   }
@@ -79,7 +79,7 @@ async function checkGasPayment(preferredEnergyAddress, address, gasLimit, useXAS
 
   const xas = await gasToXAS(gasLimit)
   const enough = xas <= senderAccount.xas
-  return { enough, energy: false, xas, payer: address }
+  return { enough, energy: false, xas, payer: address }  
 }
 
 async function payGas(gas, useEnergy, payer, tid) {
@@ -153,7 +153,7 @@ function convertBigintMemberToString(obj) {
   Object.keys(obj).forEach(key => {
     const value = obj[key]
     const type = typeof value
-    if (type === 'bigint') {
+    if (type === 'bigint') { 
       obj[key] = String(value)
     }
     else if (type === 'object') {
@@ -166,7 +166,7 @@ async function handleContractResult(contractId, contractAddr, callResult, trans,
   const { success, error, gas, stateChangesHash, data } = callResult
   await payGas(gas || 0, useEnergy, payer, trans.id)
 
-  const shortError = !error ? null :
+  const shortError = !error ? null : 
     ( error.length <= 120 ? error : (error).substr(0, 120) + '...' )
   app.sdb.create(CONTRACT_RESULT_MODEL, {
     tid: trans.id,
@@ -205,7 +205,7 @@ module.exports = {
     assert(!desc || desc.length <= 255, 'Invalid description, can not be longer than 255')
     assert(!version || version.length <= 32, 'Invalid version, can not be longer than 32 ')
     assert(code && code.length <= MAX_CODE_SIZE_K * 1024, `Contract code size can not exceed ${MAX_CODE_SIZE_K}K`)
-
+    
     const senderAddress = this.trs.senderId
     const checkResult = await checkGasPayment(undefined, senderAddress, gasLimit, true)
     assert( checkResult.enough, 'Insufficient energy')
@@ -220,12 +220,12 @@ module.exports = {
     // do not save result data
     const resultData = registerResult.data
     registerResult.data = undefined
-
+    
     await handleContractResult(
-      contractId, contractAddress, registerResult, this.trs,
+      contractId, contractAddress, registerResult, this.trs, 
       this.block.height, checkResult.energy, checkResult.payer
     )
-
+    
     if (registerResult.success) {
       app.sdb.create(CONTRACT_MODEL, {
         id: contractId,
@@ -249,7 +249,7 @@ module.exports = {
   /**
      * Call method of a registered contract
      * @param {number} gasLimit max gas avalible, 1000000 >= gasLimit >0
-     * @param {boolean} enablePayGasInXAS pay gas in XAS if energy is insufficient
+     * @param {boolean} enablePayGasInXAS pay gas in XAS if energy is insufficient  
      * @param {string} name contract name
      * @param {string} method method name of contract
      * @param {Array} args method arguments
@@ -273,7 +273,7 @@ module.exports = {
     const callResult = await app.contract.callContract(gasLimit, context, name, method, ...args)
 
     await handleContractResult(
-      contractInfo.id, contractInfo.address, callResult, this.trs,
+      contractInfo.id, contractInfo.address, callResult, this.trs, 
       this.block.height, checkResult.energy, checkResult.payer
     )
     return callResult
@@ -282,8 +282,8 @@ module.exports = {
   /**
      * Pay money to contract, behavior dependents on contract code.
      * @param {number} gasLimit max gas avalible, 1000000 >= gasLimit >0
-     * @param {boolean} enablePayGasInXAS pay gas in XAS if energy is insufficient
-     * @param {string} nameOrAddress contract name or address
+     * @param {boolean} enablePayGasInXAS pay gas in XAS if energy is insufficient  
+     * @param {string} nameOrAddress contract name or address 
      * @param {string} method payable method name, use undefined or null or '' for default payable method
      * @param {string|number} amount pay amount
      * @param {string} currency currency
@@ -295,8 +295,8 @@ module.exports = {
     assert(bigAmount.gt(0), 'Invalid amount, should be greater than 0')
     assert(JSON.stringify([...args]).length <= MAX_ARGS_SIZE_K * 1024, `stringified args length can not exceed ${MAX_ARGS_SIZE_K}K`)
 
-    const condition = app.util.address.isContractAddress(nameOrAddress) ?
-      { address: nameOrAddress } :
+    const condition = app.util.address.isContractAddress(nameOrAddress) ? 
+      { address: nameOrAddress } : 
       { name: nameOrAddress }
     const contractInfo = await app.sdb.load(CONTRACT_MODEL, condition)
     assert(contractInfo !== undefined, `Contract name or address '${nameOrAddress}' not found`)
@@ -325,9 +325,9 @@ module.exports = {
       )
     }
     await handleContractResult(
-      contractInfo.id, contractInfo.address, payResult, this.trs,
+      contractInfo.id, contractInfo.address, payResult, this.trs, 
       this.block.height, checkResult.energy, checkResult.payer
     )
-    return payResult
+    return payResult    
   }
 }

@@ -139,10 +139,10 @@ const asch = {
   },
 
   // 添加理事会成员
-  registerCouncilMember: (name, address, website, secret, secondPwd = '', fee = 10000000) => {
+  registerCouncilMember: (name, address, website, publicKey, secret, secondPwd = '', fee = 0) => {
     return AschJS.transaction.createTransactionEx({
       type: 700,
-      args: [name, address, website],
+      args: [name, address, website, publicKey],
       fee: fee,
       secret,
       secondSecret: secondPwd
@@ -153,14 +153,14 @@ const asch = {
   voteCouncil: (delegates, voter, secret, secondPwd = '') => {
     return AschJS.transaction.createTransactionEx({
       type: 701,
-      fee: 10000000,
+      fee: 0,
       args: [delegates, voter],
       secret,
       secondSecret: secondPwd
     })
   },
   // 发起转账
-  initiatePayment: (recipient, amount, currency, remarks, secret, secondPwd = '', fee = 10000000) => {
+  initiatePayment: (recipient, amount, currency, remarks, secret, secondPwd = '', fee = 0) => {
     return AschJS.transaction.createTransactionEx({
       type: 702,
       fee: fee,
@@ -173,7 +173,7 @@ const asch = {
   voteTrans: (tid, voter, secret, secondPwd = '') => {
     return AschJS.transaction.createTransactionEx({
       type: 703,
-      fee: 10000000,
+      fee: 0,
       args: [tid, voter],
       secret,
       secondSecret: secondPwd
@@ -183,7 +183,7 @@ const asch = {
   deleteCouncil: (targets, voter, secret, secondPwd = '') => {
     return AschJS.transaction.createTransactionEx({
       type: 704,
-      fee: 10000000,
+      fee: 0,
       args: [targets, voter],
       secret,
       secondSecret: secondPwd
@@ -193,7 +193,7 @@ const asch = {
   deleteCouncilVote: (targets, voter, secret, secondPwd = '') => {
     return AschJS.transaction.createTransactionEx({
       type: 705,
-      fee: 10000000,
+      fee: 0,
       args: [targets, voter],
       secret,
       secondSecret: secondPwd

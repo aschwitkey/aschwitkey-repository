@@ -1,10 +1,11 @@
 module.exports = {
   table: 'council_votes',
   tableFields: [
-    { name: 'voter', type: 'String', length: 50, not_null: true, composite_key: true },
-    { name: 'session', type: 'Number', composite_key: true },
+    { name: 'voter', type: 'String', length: 250, not_null: true },
+    { name: 'session', type: 'Number' },
     { name: 'targets', type: 'String', length: 150, not_null: true },
-    { name: 'sign', type: 'Number'},
-    { name: 'type', type: 'Number'}
+    { name: 'sign', type: 'Number' },
+    { name: 'type', type: 'Number' },
+    { name: 'transid', type: 'String', length: 100, not_null: true, primary_key: true }
   ]
 }

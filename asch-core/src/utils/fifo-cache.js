@@ -19,7 +19,7 @@ module.exports = class FIFOCache {
 
   add(key, value) {
     assert(!this.has(key), `key '${key}' exists already`)
-
+	let firstKey;
     if (this.full) {
       firstKey = this._keysQueue.shift()
       this._cachedItems.delete(firstKey)

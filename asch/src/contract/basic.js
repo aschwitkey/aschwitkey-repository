@@ -24,11 +24,10 @@ async function doCancelAgent(sender, agentAccount) {
     }
   }
 }
-//数据库操作
+
 module.exports = {
-  //转账
   async transfer(amount, recipient) {
-    if (!recipient || recipient === 'GADQ2bozmxjBfYHDQx3uwtpwXmdhafUdkN') return 'Invalid recipient'
+    if (!recipient) return 'Invalid recipient'
     app.validate('amount', String(amount))
 
     amount = Number(amount)
@@ -367,7 +366,7 @@ module.exports = {
 
   async unvote(delegate) {
     const senderId = this.sender.address
-    app.sdb.lock(`basic.account@${senderId}`)
+    app.sdb.lock(`account@${senderId}`)
 
     const sender = this.sender
     if (!sender.isAgent && !sender.isLocked) return 'Account is not locked'

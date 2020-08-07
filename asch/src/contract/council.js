@@ -9,7 +9,7 @@ function isCouncilMember(address) {
 
 
 module.exports = {
-  async register(name, address, website) {
+  async register(name, address, website, publicKey) {
 
     const regist = await app.sdb.findAll('CouncilVote', { condition: { type: 0, sign: 1 } })
     if (regist.length > 0) return "Still people who have not passed"
@@ -18,17 +18,30 @@ module.exports = {
 
     if (!address) return 'Account not found'
     if (!name) return 'Account has not a name'
-
+    if (!publicKey) return 'publickey not found'
+    let voters = this.sender.name
+    if (!this.sender.name) {//地址
+      let address = this.sender.address
+      let concils = await app.sdb.findAll('CouncilMember', { condition: { address: address } });
+      if (concils) voters = concils[0].name
+    }
     app.sdb.create('CouncilMember', {
       address: address,
       name: name,
       tid: this.trs.id,
-      publicKey: this.trs.senderPublicKey,
+      publicKey: publicKey,//this.trs.senderPublicKey,
       votes: 1,
       website,
+      status: 0
     })
-    sender.role = app.AccountRole.COUNCIL_MEMBER//=4
-    app.sdb.update('Account', { role: app.AccountRole.COUNCIL_MEMBER }, { address: senderId })
+
+    app.sdb.create('CouncilVote', {
+      voter: voters,//投票人
+      targets: name,//注册的人
+      type: 0,//类型为注册
+      sign: 1,//未生效
+      transid: this.trs.id
+    })
 
     return null
   },
@@ -37,12 +50,19 @@ module.exports = {
   async removeMember(targets) {
     const remove = await app.sdb.findAll('CouncilVote', { condition: { type: 1, sign: 1 } })
     if (remove.length > 0) return "Still people who have not passed"
-
+    let voters = this.sender.name
+    if (!this.sender.name) {//地址
+      let address = this.sender.address
+      let concils = await app.sdb.findAll('CouncilMember', { condition: { address: address } });
+      if (concils) voters = concils[0].name
+      else return 'Permission denied'
+    }
     app.sdb.create('CouncilVote', {
-      voter: this.sender.name,//投票人
+      voter: voters,//投票人
       targets: targets,//移除人员
       type: 1,
-      sign: 1//未生效
+      sign: 1,//未生效
+      transid: this.trs.id
     })
 
     return null
@@ -50,92 +70,73 @@ module.exports = {
 
 
   //增加用户的投票 ---修改council_votes表中voter字段长度为250
-  async vote(targets, voter) {
+  async vote(targets, member) {
 
-    if (!isCouncilMember(this.sender.address)) return 'Permission denied'
-
+    //if (!isCouncilMember(this.sender.address)) return 'Permission denied'
+    let vote = member
+    if (vote.length > 20) {//地址
+      let concils = await app.sdb.findAll('CouncilMember', { condition: { address: vote } });
+      if (concils) vote = concils[0].name
+      else return 'Permission denied'
+    }
     if (!targets || typeof targets !== 'string') return 'Invalid parameters'
 
-    const memberNames = new Set()
-    for (const member of app.sdb.getAll('CouncilMember')) {
-      memberNames.add(member.name)
-    }
-    for (const name of names) {
-      if (!memberNames.has(name)) return 'Target is not council member'
-    }
-
-    if (!app.isCurrentBookkeeper(this.sender.address)) return 'Permission denied'
-    // const council = await app.sdb.getAll('CouncilMember', { address: address })
-    // const voter = council.name;
     const condition = {}
     condition.status = 1
     const count = await app.sdb.count('CouncilMember', condition);
 
-    //注册用户
-    const votement = await app.sdb.findAll('CouncilVote', { condition: { targets: targets, type: 0, sign: 1 } })
-    if (!votement) {//不存在
-      app.sdb.create('CouncilVote', {
-        voter: voter,//投票人
-        //session: session,
-        targets: targets,//注册的人
-        type: 0,//类型为注册
-        sign: 1//未生效
-      })
-    }
-    else {//记录已存在
-      let voters = votement.voter.split(',');//查看这个人是不是投过票
-      if (voters.indexOf(voter) > -1) return 'Already voted'
-      if ((voters.length / (count - 1)) >= 2 / 3) {//投票超过2/3 开始生效
-        app.sdb.increase('CouncilVote', { sign: 0 })
-        app.sdb.increase('CouncilMember', { voter: 999 }, { name })
-      }
 
-      app.sdb.increase('CouncilVote', { voter: `,${voter}` })
-    }
-    for (const name of names) {
-      app.sdb.increase('CouncilMember', { votes: 1 }, { name })//增量为1，每次+1
+    //注册用户
+    let votement = await app.sdb.findAll('CouncilVote', { condition: { targets: targets, type: 0, sign: 1 } })
+
+    if (votement) {//不存在
+      let voters = votement[0].voter.split(',');//查看这个人是不是投过票
+      let tids = votement[0].transid
+      if (voters.indexOf(vote) > -1) return '已经投过票'
+
+      app.sdb.increase('CouncilMember', { votes: +1 }, { name: targets })//增量为1，每次+1
+      const votestring = votement[0].voter + `,${vote}`;
+      app.sdb.update('CouncilVote', { voter: votestring }, { transid: tids });
+
+      if (((voters.length + 1) / count) >= 2 / 3) {//投票超过2/3 开始生效
+        app.sdb.update('CouncilVote', { sign: 0 }, { transid: tids })
+        app.sdb.update('CouncilMember', { status: 1 }, { name: targets })
+      }
     }
 
   },
 
 
   //删除用户时的投票
-  async deleteVote(targets, voter) {
-    if (!isCouncilMember(this.sender.address)) return 'Permission denied'
-
+  async deleteVote(targets, member) {
+    //if (!isCouncilMember(this.sender.address)) return 'Permission denied'
+    let vote = member
+    if (vote.length > 20) {//地址
+      let concils = await app.sdb.findAll('CouncilMember', { condition: { address: vote } });
+      if (concils) vote = concils[0].name
+      else return 'Permission denied'
+    }
     if (!targets || typeof targets !== 'string') return 'Invalid parameters'
 
-    // const { session, status } = modules.council.getCouncilInfo()//在node_modules\asch-core\src\core\council.js文件中
-    // if (status === 1) return 'Invalid session status'
 
-
-    // const exists = await app.sdb.exists('CouncilVote', { voter, session })//查看这个人是不是投过票
-    // if (exists) return 'Already voted'
     const condition = {}
     condition.status = 1
     const count = await app.sdb.count('CouncilMember', condition);
-    // const council = await app.sdb.getAll('CouncilMember', { address: address })
-    // const voter = council.name;
-    //注册用户
-    const votement = await app.sdb.load('CouncilVote', { targets: targets })
-    // if (!votement) {//不存在
-    //   app.sdb.create('CouncilVote', {
-    //     voter: voter,//投票人
-    //     session: session,
-    //     targets: targets,//注册的人
-    //     type: 1,//类型为删除
-    //     sign: 1//未生效
-    //   })
-    // }
-    // else {//记录已存在
-    let voters = votement.voter.split(',');//查看这个人是不是投过票
-    if (voters.indexOf(voter) > -1) return 'Already voted'
-    if ((voters.length / (count - 1)) >= 2 / 3) {//投票超过2/3 开始生效
-      app.sdb.increase('CouncilVote', { sign: 0 })
-      app.sdb.increase('CouncilMember', { status: 0 })
-      // }
 
-      app.sdb.increase('CouncilVote', { voter: `,${voter}` })
+    const votement = await app.sdb.findAll('CouncilVote', { condition: { targets: targets, sign: 1, type: 1 } })
+
+    if (votement) {
+      let voters = votement[0].voter.split(',');//查看这个人是不是投过票
+      const id = votement[0].transid
+      if (voters.indexOf(vote) > -1) return '已经投过票'
+
+      const votestring = votement[0].voter + `,${vote}`;
+      app.sdb.update('CouncilVote', { voter: votestring }, { transid: id })
+
+      if (((voters.length + 1) / count) >= 2 / 3) {//投票超过2/3 开始生效
+        app.sdb.update('CouncilVote', { sign: 0 }, { transid: id })
+        app.sdb.update('CouncilMember', { status: 0 }, { name: targets })
+      }
     }
   },
 
@@ -145,14 +146,15 @@ module.exports = {
     const countTran = await app.sdb.findAll('CouncilTransaction', { condition: { pending: 1 } });
     if (countTran.length > 0) return 'There is a deal in progress'
 
+    let address = this.sender.address
+    let concils = await app.sdb.findAll('CouncilMember', { condition: { address: address } });
+    if (!concils) return 'Permission denied'
+
     if (!app.util.address.isNormalAddress(recipient)) return 'Invalid recipient address'
     app.validate('amount', amount)
     if (currency !== 'XAS') return 'UIA token not supported'
     if (typeof remarks !== 'string' || remarks.length > 256) return 'Invalid remarks'
-    //if (typeof expiredAt !== 'number') return 'Invalid expired time'
 
-    if (!isCouncilMember(this.sender.address)) return 'Permission denied'
-    //const session = modules.council.getCouncilInfo()
     app.sdb.create('CouncilTransaction', {
       tid: this.trs.id,
       currency,
@@ -171,7 +173,10 @@ module.exports = {
   //council_transaction表添加字段signId varchar（250）
   async signPayment(tid, address) {//签名交易
 
-    if (!isCouncilMember(this.sender.address)) return 'Permission denied'
+    let address = this.sender.address
+    let concils = await app.sdb.findAll('CouncilMember', { condition: { address: address } });
+    if (!concils) return 'Permission denied'
+    //if (!isCouncilMember(this.sender.address)) return 'Permission denied'
 
     const payment = await app.sdb.load('CouncilTransaction', tid)
     if (!payment) return 'Payment not found'

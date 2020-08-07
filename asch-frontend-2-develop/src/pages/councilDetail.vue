@@ -123,10 +123,10 @@
               <span class="listSpan">金额：</span>
               <input type="number" v-model="trans.amount" />
             </div>
-            <div class="inputlist">
+            <!-- <div class="inputlist">
               <span class="listSpan">备注：</span>
               <input type="text" v-model="trans.memo" />
-            </div>
+            </div> -->
           </div>
           <div v-else>
             <div class="inputlist">
@@ -140,6 +140,10 @@
             <div class="inputlist">
               <span class="listSpan">网址：</span>
               <input type="text" v-model="council.website" />
+            </div>
+            <div class="inputlist">
+              <span class="listSpan">公钥：</span>
+              <input type="text" v-model="council.publickey" />
             </div>
           </div>
         </div>
@@ -217,13 +221,14 @@ export default {
       council: {
         address: "",
         name: "",
-        website: ""
+        website: "",
+        publickey: ""
       },
       trans: {
         recipientId: "",
         type: "XAS",
         amount: 0,
-        memo: ""
+        memo: "理事会转账"
       },
       isMouseover: false,
       openshow: false,
@@ -424,6 +429,7 @@ export default {
       this.loading = true;
       this.filter = props.filter;
       await this.loadData();
+      await this.loadVotes();
       this.loading = false;
     },
 
@@ -484,6 +490,7 @@ export default {
             this.council.name,
             this.council.address,
             this.council.website,
+            this.council.publickey,
             this.user.secret,
             this.secondPwd,
             Number(fee)
@@ -506,7 +513,8 @@ export default {
     //投票按钮---增加成员投票，转账投票
     async VotersCli(row) {
       if (this.isCouncil > -1) {
-        const name = this.user.account.address;
+        let name = this.user.account.name;
+        if (!name) name = this.user.account.address;
         console.log("投票人：", name);
         let vote = {};
         //console.log(row, "toupiao");
@@ -549,8 +557,9 @@ export default {
 
     async deleMenber(row) {
       if (this.isCouncil > -1) {
-        const name = this.user.account.address;
+        let name = this.user.account.name;
         console.log("发起移除成员者：", name);
+        if (!name) name = this.user.account.address;
         //console.log(this.user.account.name, "row");
         let datele = asch.deleteCouncil(
           row.name,
@@ -610,6 +619,7 @@ export default {
       if (val) {
         this.loadData();
         this.getGroupAccount();
+        this.loadVotes();
       }
     }
   }
