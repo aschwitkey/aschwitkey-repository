@@ -70,7 +70,7 @@ module.exports = (router) => {
     if (Council) {
       for (let i = 0; i < Council.length; i++) {
         let type = "增加成员";
-        if (Council[i].type == 1) type = "删除成员";
+        if (Council[i].type == 1) type = "移除成员";
         var count = Council[i].voter.split(',');
         votelist.push({
           name: Council[i].targets,
