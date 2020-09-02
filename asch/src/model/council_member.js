@@ -7,8 +7,7 @@ module.exports = {
     { name: 'tid', type: 'String', length: 64, unique: true, not_null: true },
     { name: 'publicKey', type: 'String', length: 64, unique: true },
     { name: 'votes', type: 'BigInt' },
-    { name: 'status', type: 'Number' },
+    { name: 'status', type: 'Number', default: 0 },
     { name: 'website', type: 'String', length: 256 }
-
   ]
 }
