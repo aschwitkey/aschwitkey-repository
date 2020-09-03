@@ -46,19 +46,10 @@ module.exports = (router) => {
 
   //
   router.get('/getcouncil', async (req) => {
-    let council = [];
     const condition = {}
     condition.status = 1
-    const count = await app.sdb.count('CouncilMember', condition);
     let members = await app.sdb.findAll('CouncilMember', { condition: { status: 1 } }) || [];
-
-    if (members) {
-      for (let i = 0; i < members.length; i++) {
-        if (members[i].votes / count >= (2 / 3))
-          council.push(members[i])
-      }
-    }
-    return council
+    return members
   })
 
   // 获取投票列表

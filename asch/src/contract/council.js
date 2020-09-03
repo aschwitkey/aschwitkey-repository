@@ -146,6 +146,14 @@ module.exports = {
     const countTran = await app.sdb.findAll('CouncilTransaction', { condition: { pending: 1 } });
     if (countTran.length > 0) return 'There is a deal in progress'
 
+    const recipientAccount = await app.sdb.load('Account', recipient)
+    if (!recipientAccount) return 'Recipient account not found'
+    //查询理事会账号的余额
+    const COUNCIL_ADDRESS = 'GADQ2bozmxjBfYHDQx3uwtpwXmdhafUdkN'
+    const councilAccount = await app.sdb.load('Account', COUNCIL_ADDRESS)
+    if (!councilAccount) return 'Council account not found'
+    if (councilAccount.xas < amount) return 'Insufficient balance'
+
     let address = this.sender.address
     let concils = await app.sdb.findAll('CouncilMember', { condition: { address: address } });
     if (!concils) return 'Permission denied'
@@ -171,7 +179,7 @@ module.exports = {
   },
 
   //council_transaction表添加字段signId varchar（250）
-  async signPayment(tid, address) {//签名交易
+  async signPayment(tid) {//签名交易
 
     let address = this.sender.address
     let concils = await app.sdb.findAll('CouncilMember', { condition: { address: address } });
