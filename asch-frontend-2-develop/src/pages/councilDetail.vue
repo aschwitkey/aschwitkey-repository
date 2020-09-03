@@ -126,7 +126,7 @@
             <!-- <div class="inputlist">
               <span class="listSpan">备注：</span>
               <input type="text" v-model="trans.memo" />
-            </div> -->
+            </div>-->
           </div>
           <div v-else>
             <div class="inputlist">
@@ -170,27 +170,26 @@ import {
   QItemSide,
   QItemTile,
   QItemSeparator
-  // QScrollArea
-} from "quasar";
-import { mapActions, mapGetters } from "vuex";
+} from 'quasar'
+import { mapActions, mapGetters } from 'vuex'
 import {
   compileTimeStamp,
   getTimeFromHight,
   getCache,
   translateErrMsg,
   toast
-} from "../utils/util";
-import { convertFee, dealGiantNumber } from "../utils/asch";
-import TransRecordContainer from "../components/TransRecordContainer";
-import { secondPwd } from "../utils/validators";
-import TransPanel from "../components/TransPanel";
-import BoundaryLine from "../components/BoundaryLine";
-import AssetIcon from "../components/AssetIcon";
-import PromptMessage from "../components/PromptMessage";
-import buyBackIcon from "../assets/buy_back_icon.png";
-import asch from "../utils/asch";
+} from '../utils/util'
+// import asch from '../utils/asch'
+import { asch, convertFee, dealGiantNumber } from '../utils/asch'
+import TransRecordContainer from '../components/TransRecordContainer'
+import { secondPwd } from '../utils/validators'
+// import TransPanel from '../components/TransPanel'
+import BoundaryLine from '../components/BoundaryLine'
+import AssetIcon from '../components/AssetIcon'
+import PromptMessage from '../components/PromptMessage'
+import buyBackIcon from '../assets/buy_back_icon.png'
 export default {
-  name: "councilDetail",
+  name: 'councilDetail',
   props: [],
   components: {
     QPage,
@@ -211,124 +210,122 @@ export default {
     BoundaryLine,
     AssetIcon,
     PromptMessage
-    // QScrollArea,
-    // VueMarkdown
   },
   data() {
     return {
       isCouncil: -1,
       buyBackIcon,
       council: {
-        address: "",
-        name: "",
-        website: "",
-        publickey: ""
+        address: '',
+        name: '',
+        website: '',
+        publickey: ''
       },
       trans: {
-        recipientId: "",
-        type: "XAS",
+        recipientId: '',
+        type: 'XAS',
         amount: 0,
-        memo: "理事会转账"
+        memo: '理事会转账'
       },
       isMouseover: false,
       openshow: false,
       transtaus: true,
-      currency: "",
-      secondPwd: "",
+      currency: '',
+      secondPwd: '',
 
-      balance: "",
+      balance: '',
       precision: 0,
-      fee: "",
+      fee: '',
       btnDisable: false,
-      user: getCache("user"),
+      user: getCache('user'),
       columnsCouncil: [
         {
-          name: "name",
+          name: 'name',
           required: true,
-          label: "昵称", //this.$t("NICKNAME"),
-          align: "center",
-          field: "name"
+          label: '昵称',
+          align: 'center',
+          field: 'name'
         },
         {
-          name: "address",
+          name: 'address',
           required: true,
-          label: "地址", //this.$t("ADDRESS"),
-          align: "center",
-          field: "address"
+          label: '地址',
+          align: 'center',
+          field: 'address'
         },
         {
-          name: "iron",
+          name: 'iron',
           required: true,
-          label: "操作",
-          align: "center"
+          label: '操作',
+          align: 'center'
         }
       ],
       columns: [
         {
-          name: "name",
+          name: 'name',
           required: true,
-          label: "昵称",
-          align: "center",
-          field: "name"
+          label: '昵称',
+          align: 'center',
+          field: 'name'
         },
         {
-          name: "address",
+          name: 'address',
           required: true,
-          label: "地址",
-          align: "center",
-          field: "address"
+          label: '地址',
+          align: 'center',
+          field: 'address'
         }
       ],
       VocolumnsCouncil: [
         {
-          name: "name",
+          name: 'name',
           required: true,
-          label: "名称",
-          align: "center",
-          field: "name"
+          label: '名称',
+          align: 'center',
+          field: 'name'
         },
         {
-          name: "type",
+          name: 'type',
           required: true,
-          label: "类型",
-          align: "center",
-          field: "type"
+          label: '类型',
+          align: 'center',
+          field: 'type'
         },
         {
-          name: "votes",
+          name: 'votes',
           required: true,
-          label: "投票数",
-          align: "center",
-          field: "votes"
+          label: '投票数',
+          align: 'center',
+          field: 'votes'
         },
         {
-          name: "iron",
+          name: 'iron',
           required: true,
-          label: "操作",
-          align: "center"
+          label: '操作',
+          align: 'center'
         }
       ],
       Vocolumns: [
         {
-          name: "name",
+          name: 'name',
           required: true,
-          label: "名称",
-          align: "center",
-          field: "name"
+          label: '名称',
+          align: 'center',
+          field: 'name'
         },
         {
-          name: "type",
+          name: 'type',
           required: true,
-          label: "类型",
-          align: "center",
-          field: "type"
+          label: '类型',
+          align: 'center',
+          field: 'type'
         },
         {
-          name: "votes",
+          name: 'votes',
           required: true,
-          label: "投票数",
-          align: "center",
-          field: "votes"
+          label: '投票数',
+          align: 'center',
+          field: 'votes'
         }
       ],
       loading: false,
@@ -338,10 +335,10 @@ export default {
       balances: [],
       group: null,
       accountLeft: 0,
-      address: "GADQ2bozmxjBfYHDQx3uwtpwXmdhafUdkN",
+      address: 'GADQ2bozmxjBfYHDQx3uwtpwXmdhafUdkN',
 
-      userName: ""
-    };
+      userName: ''
+    }
   },
   validations: {
     secondPwd: {
@@ -349,132 +346,119 @@ export default {
     }
   },
   created() {
-    // this.$root.$on('openTransactionDialog', this.openTransactionDialog)
   },
   beforeDestroy() {
-    // this.$root.$off('openTransactionDialog', this.openTransactionDialog)
   },
   mounted() {
-    this.loadData();
-    this.loadVotes();
-    this.getGroupAccount();
-    this.isCouncilMember();
-    // this.getBurnAccount()
-    // this.getBuyBackBalance()
-    this.getCouncilAssets();
+    this.loadData()
+    this.loadVotes()
+    this.getGroupAccount()
+    this.isCouncilMember()
+    this.getCouncilAssets()
   },
   methods: {
     ...mapActions([
-      "getCouncil",
-      "getAccountsInfo",
-      "getBalances",
-      "getCouncilMember",
-      "getCouncilVotes",
-      "broadcastTransaction",
-      "accountdetail"
+      'getCouncil',
+      'getAccountsInfo',
+      'getBalances',
+      'getCouncilMember',
+      'getCouncilVotes',
+      'broadcastTransaction',
+      'accountdetail'
     ]),
     async loadData() {
-      console.log("user:", this.user);
+      console.log('user:', this.user)
       let data = await this.getCouncilMember({
         address: this.address
-      });
+      })
       if (data.success) {
-        this.datas = data.data;
+        this.datas = data.data
       }
     },
     async loadVotes() {
-      let votes = await this.getCouncilVotes();
+      let votes = await this.getCouncilVotes()
       if (votes.success) {
-        this.Voticedatas = votes.data;
-        //console.log("votes", this.Voticedatas);
+        this.Voticedatas = votes.data
+        // console.log("votes", this.Voticedatas);
       }
     },
     async getCouncilAssets() {
-      let balances = [];
+      let balances = []
       let accountRes = await this.getAccountsInfo({
         address: this.address
-      });
+      })
 
       if (accountRes.success && accountRes.account) {
         balances.push({
-          label: "XAS",
+          label: 'XAS',
           value: convertFee(accountRes.account.xas, 8)
-        });
+        })
       }
 
       let balancesRes = await this.getBalances({
         address: this.address
-      });
+      })
       if (balancesRes.success && balancesRes.balances.length >= 1) {
-        balancesRes.balances.forEach(balance => {
+        balancesRes.balances.forEach((balance) => {
           if (balance.balance >= 1) {
             balances.push({
               label: balance.currency,
               value: convertFee(balance.balance, balance.asset.precision)
-            });
+            })
           }
-        });
+        })
       }
-      this.balances = this.balances.concat(balances);
+      this.balances = this.balances.concat(balances)
     },
     async getGroupAccount() {
       let res = await this.getAccountsInfo({
         address: this.address
-      });
+      })
       if (res.success && res.account) {
-        this.accountLeft = res.account.xas;
+        this.accountLeft = res.account.xas
       }
     },
     async request(props) {
-      this.loading = true;
-      this.filter = props.filter;
-      await this.loadData();
-      await this.loadVotes();
-      this.loading = false;
+      this.loading = true
+      this.filter = props.filter
+      await this.loadData()
+      await this.loadVotes()
+      this.loading = false
     },
-
-    // 转账
     transBtncli() {
-      this.openshow = true;
-      this.transtaus = true;
+      this.openshow = true
+      this.transtaus = true
     },
     addmenber() {
-      this.openshow = true;
-      this.transtaus = false;
+      this.openshow = true
+      this.transtaus = false
     },
     closeModel() {
-      this.openshow = false;
+      this.openshow = false
     },
-    // 查询是否为理事会成员
     async isCouncilMember() {
-      //查询当前用户是否是理事会成员
-      //理事会成员才可以发起转账
-      let members = [];
+      let members = []
       let data = await this.getCouncilMember({
         address: this.address
-      });
+      })
       if (data.success) {
-        members = data.data;
+        members = data.data
       }
-      //console.log(members, "members");
-      const address = this.user.account.address;
+      const address = this.user.account.address
       for (let count = 0; count < members.length; count++) {
-        if (address == members[count].address) {
-          this.isCouncil = count;
-          break;
+        if (address === members[count].address) {
+          this.isCouncil = count
+          break
         }
       }
     },
-    //发送按钮
     async sendTrans() {
       if (this.isCouncil > -1) {
-        //发送
-        let trans = {};
-        let res;
-        let fee = 10000000;
+        let trans = {}
+        let res
+        let fee = 10000000
         if (this.transtaus) {
-          const amount = dealGiantNumber(this.trans.amount, 8);
-          // 发起转账
+          const amount = dealGiantNumber(this.trans.amount, 8)
           trans = asch.initiatePayment(
             this.trans.recipientId,
             amount,
@@ -483,9 +467,8 @@ export default {
             this.user.secret,
             this.secondPwd,
             Number(fee)
-          );
+          )
         } else {
-          // 添加成员
           trans = asch.registerCouncilMember(
             this.council.name,
             this.council.address,
@@ -494,111 +477,108 @@ export default {
             this.user.secret,
             this.secondPwd,
             Number(fee)
-          );
+          )
         }
-        res = await this.broadcastTransaction(trans);
+        res = await this.broadcastTransaction(trans)
 
         if (res.success === true) {
-          toast(this.$t("INF_TRANSFER_SUCCESS"));
-          this.openshow = false;
-          return true;
+          toast(this.$t('INF_TRANSFER_SUCCESS'))
+          this.openshow = false
+          return true
         } else {
-          translateErrMsg(this.$t, res.error);
-          return false;
+          translateErrMsg(this.$t, res.error)
+          return false
         }
       } else {
-        toast("没有权限");
+        toast('没有权限')
       }
     },
-    //投票按钮---增加成员投票，转账投票
     async VotersCli(row) {
       if (this.isCouncil > -1) {
-        let name = this.user.account.name;
-        if (!name) name = this.user.account.address;
-        console.log("投票人：", name);
-        let vote = {};
-        //console.log(row, "toupiao");
-        if (row.type == "转账") {
+        let name = this.user.account.name
+        if (!name) name = this.user.account.address
+        console.log('投票人：', name)
+        let vote = {}
+        if (row.type === '转账') {
           vote = asch.voteTrans(
             row.tid,
             this.user.account.address,
             this.user.secret,
             this.secondPwd
-          );
-        } else if (row.type == "增加成员") {
+          )
+        } else if (row.type === '增加成员') {
           vote = asch.voteCouncil(
             row.name,
             name,
             this.user.secret,
             this.secondPwd
-          );
+          )
         } else {
           vote = asch.deleteCouncilVote(
             row.name,
             name,
             this.user.secret,
             this.secondPwd
-          );
+          )
         }
 
-        let res = await this.broadcastTransaction(vote);
+        let res = await this.broadcastTransaction(vote)
 
         if (res.success === true) {
-          toast(this.$t("INF_TRANSFER_SUCCESS"));
-          return true;
+          toast(this.$t('INF_TRANSFER_SUCCESS'))
+          return true
         } else {
-          translateErrMsg(this.$t, res.error);
-          return false;
+          translateErrMsg(this.$t, res.error)
+          return false
         }
       } else {
-        toast("没有权限");
+        toast('没有权限')
       }
     },
 
     async deleMenber(row) {
       if (this.isCouncil > -1) {
-        let name = this.user.account.name;
-        console.log("发起移除成员者：", name);
-        if (!name) name = this.user.account.address;
-        //console.log(this.user.account.name, "row");
+        let name = this.user.account.name
+        console.log('发起移除成员者：', name)
+        if (!name) name = this.user.account.address
         let datele = asch.deleteCouncil(
           row.name,
           name,
           this.user.secret,
           this.secondPwd
-        );
-        let res = await this.broadcastTransaction(datele);
+        )
+        let res = await this.broadcastTransaction(datele)
         if (res.success === true) {
-          toast(this.$t("INF_TRANSFER_SUCCESS"));
-          return true;
+          toast(this.$t('INF_TRANSFER_SUCCESS'))
+          return true
         } else {
-          translateErrMsg(this.$t, res.error);
-          return false;
+          translateErrMsg(this.$t, res.error)
+          return false
         }
       } else {
-        toast("没有权限");
+        toast('没有权限')
       }
     },
     convertFrequency(val) {
-      return Math.floor(val / 8640);
+      return Math.floor(val / 8640)
     },
     compileTimeStamp(timestamp) {
-      return compileTimeStamp(timestamp);
+      return compileTimeStamp(timestamp)
     },
     getTimeFromHight(height) {
-      return getTimeFromHight(this.latestBlock, height);
+      return getTimeFromHight(this.latestBlock, height)
     },
 
     viewAccountInfo(row) {
-      this.$root.$emit("openAccountModal", row);
+      this.$root.$emit('openAccountModal', row)
     }
   },
   computed: {
-    ...mapGetters(["latestBlock", "userInfo"]),
+    ...mapGetters(['latestBlock', 'userInfo']),
     gatewayDetailClass() {
       return this.isDesk
-        ? "col-md-6 col-xs-12"
-        : "col-md-6 col-xs-12 margin-top-minus-28";
+        ? 'col-md-6 col-xs-12'
+        : 'col-md-6 col-xs-12 margin-top-minus-28'
     },
     councilAccount() {
       return {
@@ -606,24 +586,24 @@ export default {
         account: {
           address: this.address
         }
-      };
+      }
     }
   },
   homeTopRightClass() {
     return this.isDesk
-      ? "col-md-6 col-xs-12 row justify-end items-center"
-      : "col-md-6 col-xs-12 row justify-center items-center";
+      ? 'col-md-6 col-xs-12 row justify-end items-center'
+      : 'col-md-6 col-xs-12 row justify-center items-center'
   },
   watch: {
     userInfo(val) {
       if (val) {
-        this.loadData();
-        this.getGroupAccount();
-        this.loadVotes();
+        this.loadData()
+        this.getGroupAccount()
+        this.loadVotes()
       }
     }
   }
-};
+}
 </script>
 
 <style lang="stylus" scoped>

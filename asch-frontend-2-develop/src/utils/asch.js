@@ -154,7 +154,7 @@ const convertTransFee = trans => {
   return trans
 }
 
-const asch = {
+export const asch = {
   // 转账 XAS  TODO
   transferXAS: (amount, recipientId, message, secret, secondPwd = '', fee = 10000000) => {
     return AschJS.transaction.createTransactionEx({
