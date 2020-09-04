@@ -139,10 +139,10 @@ const asch = {
   },
 
   // 添加理事会成员
-  registerCouncilMember: (name, address, website, publicKey, secret, secondPwd = '', fee = 0) => {
+  registerCouncilMember: (address, secret, secondPwd = '', fee = 0) => {
     return AschJS.transaction.createTransactionEx({
       type: 700,
-      args: [name, address, website, publicKey],
+      args: [address],
       fee: fee,
       secret,
       secondSecret: secondPwd

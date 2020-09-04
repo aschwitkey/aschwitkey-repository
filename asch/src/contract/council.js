@@ -9,35 +9,37 @@ function isCouncilMember(address) {
 
 
 module.exports = {
-  async register(name, address, website, publicKey) {
+  async register(address) {
 
     const regist = await app.sdb.findAll('CouncilVote', { condition: { type: 0, sign: 1 } })
-    if (regist.length > 0) return "Still people who have not passed"
+    if (regist.length > 0) return "Still people who have not passed"    
 
-    if (!website || typeof website !== 'string' || website.length > 256) return 'Invalid parameters'
+    address = address.replace(/\s/g, "");
+    if (!address) return 'Account not found'   
+    let Accountlist= await app.sdb.load('Account', address);
+    const name_account=Accountlist.name;
+    if (!name_account) return 'Account has not a name'
 
-    if (!address) return 'Account not found'
-    if (!name) return 'Account has not a name'
-    if (!publicKey) return 'publickey not found'
+    let isAccount = await app.sdb.findAll('CouncilMember', { condition: { address: address } });
+    if (isAccount.length>0) return 'Account already exists'
+
     let voters = this.sender.name
     if (!this.sender.name) {//地址
-      let address = this.sender.address
-      let concils = await app.sdb.findAll('CouncilMember', { condition: { address: address } });
+      let add = this.sender.address
+      let concils = await app.sdb.findAll('CouncilMember', { condition: { address: add } });
       if (concils) voters = concils[0].name
     }
     app.sdb.create('CouncilMember', {
       address: address,
-      name: name,
+      name: name_account,
       tid: this.trs.id,
-      publicKey: publicKey,//this.trs.senderPublicKey,
-      votes: 1,
-      website,
+      votes: 1,      
       status: 0
     })
 
     app.sdb.create('CouncilVote', {
       voter: voters,//投票人
-      targets: name,//注册的人
+      targets: name_account,//注册的人
       type: 0,//类型为注册
       sign: 1,//未生效
       transid: this.trs.id
@@ -135,7 +137,8 @@ module.exports = {
 
       if (((voters.length + 1) / count) >= 2 / 3) {//投票超过2/3 开始生效
         app.sdb.update('CouncilVote', { sign: 0 }, { transid: id })
-        app.sdb.update('CouncilMember', { status: 0 }, { name: targets })
+        //app.sdb.update('CouncilMember', { status: 0 }, { name: targets })
+        app.sdb.del('CouncilMember', { name: targets })
       }
     }
   },

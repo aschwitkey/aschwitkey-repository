@@ -117,7 +117,7 @@
             </div>
             <div class="inputlist">
               <span class="listSpan">类型：</span>
-              <input type="text" value="XAS" v-model="trans.type" />
+              <input type="text" disabled value="XAS" v-model="trans.type" />
             </div>
             <div class="inputlist">
               <span class="listSpan">金额：</span>
@@ -132,18 +132,6 @@
             <div class="inputlist">
               <span class="listSpan">地址：</span>
               <input type="text" v-model="council.address" />
-            </div>
-            <div class="inputlist">
-              <span class="listSpan">昵称：</span>
-              <input type="text" v-model="council.name" />
-            </div>
-            <div class="inputlist">
-              <span class="listSpan">网址：</span>
-              <input type="text" v-model="council.website" />
-            </div>
-            <div class="inputlist">
-              <span class="listSpan">公钥：</span>
-              <input type="text" v-model="council.publickey" />
             </div>
           </div>
         </div>
@@ -216,10 +204,7 @@ export default {
       isCouncil: -1,
       buyBackIcon,
       council: {
-        address: '',
-        name: '',
-        website: '',
-        publickey: ''
+        address: ''
       },
       trans: {
         recipientId: '',
@@ -470,10 +455,7 @@ export default {
           )
         } else {
           trans = asch.registerCouncilMember(
-            this.council.name,
             this.council.address,
-            this.council.website,
-            this.council.publickey,
             this.user.secret,
             this.secondPwd,
             Number(fee)
