@@ -63,10 +63,13 @@ module.exports = (router) => {
         let type = "增加成员";
         if (Council[i].type == 1) type = "移除成员";
         var count = Council[i].voter.split(',');
+        var novotes = 0;
+        if (Council[i].novoter != null && Council[i].novoter.length > 0) novotes = Council[i].novoter.split(',').length;
         votelist.push({
           name: Council[i].targets,
           type: type,
           votes: count.length,
+          novotes: novotes,
           amount: 0,
           tid: ""
         })
@@ -81,7 +84,8 @@ module.exports = (router) => {
           name: trans[j].recipient,//收款人
           type: type,
           votes: trans[j].signs,
-          amount: trans[j].amount,
+          novotes: trans[j].nosigns,
+          amount: trans[j].amount / 100000000,
           tid: trans[j].tid
         })
       }

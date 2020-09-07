@@ -150,11 +150,11 @@ const asch = {
   },
 
   // 添加成员投票
-  voteCouncil: (delegates, voter, secret, secondPwd = '') => {
+  voteCouncil: (delegates, voter, isno = 0, secret, secondPwd = '') => {
     return AschJS.transaction.createTransactionEx({
       type: 701,
       fee: 0,
-      args: [delegates, voter],
+      args: [delegates, voter, isno],
       secret,
       secondSecret: secondPwd
     })
@@ -170,11 +170,11 @@ const asch = {
     })
   },
   // 投票转账
-  voteTrans: (tid, voter, secret, secondPwd = '') => {
+  voteTrans: (tid, isno, secret, secondPwd = '') => {
     return AschJS.transaction.createTransactionEx({
       type: 703,
       fee: 0,
-      args: [tid, voter],
+      args: [tid, isno],
       secret,
       secondSecret: secondPwd
     })
@@ -190,11 +190,11 @@ const asch = {
     })
   },
   // 移除成员投票
-  deleteCouncilVote: (targets, voter, secret, secondPwd = '') => {
+  deleteCouncilVote: (targets, voter, isno = 0, secret, secondPwd = '') => {
     return AschJS.transaction.createTransactionEx({
       type: 705,
       fee: 0,
-      args: [targets, voter],
+      args: [targets, voter, isno],
       secret,
       secondSecret: secondPwd
     })
